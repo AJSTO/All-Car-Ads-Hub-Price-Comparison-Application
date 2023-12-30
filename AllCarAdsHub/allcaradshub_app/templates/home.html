@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- Add these links in the head section of your HTML -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- Optional: Add Font Awesome for sorting icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-xwD6HyK16s71pDUm4a3M/NxPy9O9Fm7Ppm3QF9Zz/AoNV/p6hb1Q5lYI2xQ+PfVnlO1ObNSVOCQIXiZg6tXBR9Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+
+    <title>AllCarAdsHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        form {
+
+            margin: 0 auto;
+            display: grid;
+            gap: 20px;
+        }
+
+        fieldset {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            background-color: #f0f8f0; /* Light green color */
+        }
+
+        legend {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .param-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
+            gap: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        select,
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+            height: 38px; /* Set the height for all form elements */
+            border: 1px solid #ddd; /* Set border style for all form elements */
+            color: #555; /* Set text color for all form elements */
+            border-radius: 8px; /* Set border-radius for all form elements */
+        }
+
+        select {
+            /* Set the height, border style, and text color for the select element */
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            height: 38px;
+            border: 1px solid #ddd;
+            color: #555;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        /* Setting the width of the button */
+        button[type="button"] {
+            width: 100%;
+        }
+
+        #loading-bar {
+            display: none;
+            margin-top: 10px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 5px solid #ddd;
+            border-top: 5px solid #45a049; /* Green color for the top part of the loading bar */
+            animation: spin 1s linear infinite; /* Add a spinning animation */
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #message-container {
+            display: none;
+            margin-top: 10px;
+            padding: 10px 15px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #adsTable {
+            display: none;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            width: 100%;
+            background-color: #ffffff;
+        }
+        #adsTable.show {
+            display: table;
+        }
+
+        #adsTable th, #adsTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        #adsTable th {
+            background-color: #ffffff;
+        }
+
+        #adsTable tbody tr:hover {
+            background-color: #ffffff;
+        }
+
+        /* Adjust column widths */
+        #adsTable th:first-child,
+        #adsTable td:first-child,
+        #adsTable th:nth-child(3),
+        #adsTable td:nth-child(3) {
+            width: 10%; /* Adjust the width for the first and third columns */
+        }
+
+        #adsTable th:nth-child(2),
+        #adsTable td:nth-child(2) {
+            width: 50%; /* Adjust the width for the second column */
+        }
+        .additional-info {
+            font-size: 14px; /* Adjust the font size as needed */
+        }
+
+        #medianContainer_Price {
+            position: absolute;
+            padding: 0 20px;
+            font-size: 8px; /* Adjust the font size as needed */
+            color: #333; /* Adjust the text color as needed */
+        }
+        #medianContainer_Mileage {
+            position: absolute;
+            padding: 0 20px;
+            font-size: 8px; /* Adjust the font size as needed */
+            color: #333; /* Adjust the text color as needed */
+            margin-top: 10px;
+        }
+        .charts {
+            display: flex;
+            width: 100%;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .charts__1 {
+            width: 50%;
+            min-width: 300px;
+            flex: 1;
+            min-height: 400px;
+        }
+
+
+    </style>
+
+</head>
+<body>
+	<!-- App logo -->
+    <a href='https://postimg.cc/McW2rDWC' target='_blank'>
+  <img src='https://i.postimg.cc/BvFSbYRn/All-Car-Ads-Hub-2.png' style='width: 100%;' border='0' alt='All-Car-Ads-Hub-2'/>
+</a>
+
+    <form id="carSearchForm">
+        {% csrf_token %}
+        <fieldset>
+            <legend>Parametry wyszukiwania</legend>
+            <div class="param-container">
+                <div>
+                     <select id="carBrand" name="carBrand" onchange="populateCarModels()">
+                        <option value="" disabled selected>Wybierz markę pojazdu</option>
+                        <!-- Full dictionary of car makes and models -->
+                        <option value="BMW">BMW</option>
+                        <option value="Volkswagen">Volkswagen</option>
+                        <option value="Audi">Audi</option>
+                        <option value="Ford">Ford</option>
+                        <option value="Opel">Opel</option>
+                        <option value="Mercedes-Benz">Mercedes-Benz</option>
+                        <option value="Toyota">Toyota</option>
+                        <option value="Skoda">Skoda</option>
+                        <option value="Renault">Renault</option>
+                        <option value="Peugeot">Peugeot</option>
+                        <option value="Kia">Kia</option>
+                        <option value="Hyundai">Hyundai</option>
+                        <option value="Volvo">Volvo</option>
+                        <option value="Citroën">Citroën</option>
+                        <option value="Nissan">Nissan</option>
+                        <option value="Seat">Seat</option>
+                        <option value="Mazda">Mazda</option>
+                        <option value="Fiat">Fiat</option>
+                        <option value="Honda">Honda</option>
+                        <option value="Suzuki">Suzuki</option>
+                        <option value="Dacia">Dacia</option>
+                        <option value="Jeep">Jeep</option>
+                        <option value="Mitsubishi">Mitsubishi</option>
+                        <option value="Porsche">Porsche</option>
+                    </select>
+
+                    <select id="carModel" name="carModel" disabled >
+                        <option value="" disabled selected>Wybierz model pojazdu</option>
+                        <!-- Models options generated dynamically based on the selected brand -->
+                    </select>
+                </div>
+
+                <div>
+					<input type="number" id="priceFrom" name="priceFrom" placeholder="Cena od [PLN]" min="0" max="5000000">
+
+                    <input type="number" id="priceTo" name="priceTo" placeholder="Cena do [PLN]" min="0" max="5000000">
+                </div>
+
+                <div>
+                  <input type="number" id="yearFrom" name="yearFrom" placeholder="Rok produkcji od" min="1900" max="2023">
+
+                  <input type="number" id="yearTo" name="yearTo" placeholder="Rok produkcji do" min="1900" max="2023">
+                </div>
+
+                <div>
+                    <input type="number" id="mileageFrom" name="mileageFrom" placeholder="Przebieg od [km]" min="0" max="1500000">
+
+                    <input type="number" id="mileageTo" name="mileageTo" placeholder="Przebieg do [km]" min="0" max="1500000">
+                </div>
+
+
+                <div>
+					<input type="number" id="engineCapFrom" name="engineCapFrom" placeholder="Pojemność silnika od [cm³]" min="0" max="7000">
+
+
+                    <input type="number" id="engineCapTo" name="engineCapTo" placeholder="Pojemność silnika do [cm³]" min="0" max="7000">
+                </div>
+
+                <div>
+					<input type="number" id="enginePowerFrom" name="enginePowerFrom" placeholder="Moc silnika od [KM]" min="0" max="1000">
+
+                    <input type="number" id="enginePowerTo" name="enginePowerTo" placeholder="Moc silnika do [KM]" min="0" max="1000">
+                </div>
+
+
+                <div>
+               		<input type="text" id="town" name="town" placeholder="Lokalizacja" pattern="[A-Za-z]+" title="Please enter only letters">
+
+                    <input type="number" id="distanceFromTown" name="distanceFromTown" placeholder="Odległość [km]" min="0" max="800">
+                </div>
+
+                <div>
+                    <select id="fuelType" name="fuelType">
+                    	<option value="" disabled selected>Rodzaj paliwa</option>
+                        <option value="petrol">Benzyna</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="hybrid">Hybryda</option>
+                        <option value="electric">Elektryczny</option>
+                    </select>
+
+                    <select id="gearboxType" name="gearboxType">
+                    	<option value="" disabled selected>Rodzaj skrzyni biegów</option>
+                        <option value="manual">Manualna</option>
+                        <option value="automatic">Automatyczna</option>
+                    </select>
+                </div>
+
+
+
+                <div>
+                   <select id="voivodship" name="voivodship">
+                        <!-- List of Polish Voivodships in Polish language -->
+                        <option value="" disabled selected>Województwo (wyszukiwanie w allegro)</option>
+                        <option value="dolnośląskie">Dolnośląskie</option>
+                        <option value="kujawsko-pomorskie">Kujawsko-Pomorskie</option>
+                        <option value="lubelskie">Lubelskie</option>
+                        <option value="lubuskie">Lubuskie</option>
+                        <option value="łódzkie">Łódzkie</option>
+                        <option value="małopolskie">Małopolskie</option>
+                        <option value="mazowieckie">Mazowieckie</option>
+                        <option value="opolskie">Opolskie</option>
+                        <option value="podkarpackie">Podkarpackie</option>
+                        <option value="podlaskie">Podlaskie</option>
+                        <option value="pomorskie">Pomorskie</option>
+                        <option value="śląskie">Śląskie</option>
+                        <option value="świętokrzyskie">Świętokrzyskie</option>
+                        <option value="warmińsko-mazurskie">Warmińsko-Mazurskie</option>
+                        <option value="wielkopolskie">Wielkopolskie</option>
+                        <option value="zachodniopomorskie">Zachodniopomorskie</option>
+                    </select>
+                </div>
+        </fieldset>
+        <button type="button" onclick="submitCarSearch()">Szukaj</button>
+    </form>
+
+    <!-- Added loading bar -->
+    <div id="loading-bar">
+        <div id="loading-bar-fill"></div>
+    </div>
+
+    <div id="message-container"></div>
+
+     <!-- Histogram of Prices and ScatterPlot-->
+    <div class="charts">
+        <div class="charts__1">
+            <canvas id="scatterplot"></canvas>
+        </div>
+        <div class="charts__1">
+            <canvas id="histogramPrice"></canvas>
+        </div>
+    </div>
+    <div>
+        <div id="medianContainer_Price"></div>
+        <div id="medianContainer_Mileage"></div>
+    </div>
+
+    <!-- Add this in your HTML where you want the table to appear -->
+    <table id="adsTable" class="table">
+        <thead>
+            <tr>
+                <th>Portal</th>
+                <th>Aukcja</th>
+                <th data-sort="asc">
+                    Cena
+                    <img src="https://w7.pngwing.com/pngs/61/907/png-transparent-sort-arrows-ascending-descending-match-order-sorting-web-icon-thumbnail.png" alt="Sort icon" onclick="sortTable()" width="10" height="10">
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        function populateYears() {
+            // This function is called when the car brand selection changes
+            var carBrand = document.getElementById('carBrand').value;
+            var yearFromSelect = document.getElementById('yearFrom');
+            var yearToSelect = document.getElementById('yearTo');
+
+            // Clear previous options
+            yearFromSelect.innerHTML = '';
+            yearToSelect.innerHTML = '';
+
+            // Add placeholder option
+            yearFromSelect.appendChild(document.createElement('option')).text = 'Wybierz rok';
+            yearToSelect.appendChild(document.createElement('option')).text = 'Wybierz rok';
+
+            // Add example years for demonstration purposes
+            // You should replace this with logic to fetch actual years based on the selected car brand
+            for (var i = 2022; i >= 2000; i--) {
+                yearFromSelect.appendChild(new Option(i, i));
+                yearToSelect.appendChild(new Option(i, i));
+            }
+        }
+        // The full dictionary of car makes and models
+        var samochody = {
+            'BMW': ['Seria 3', 'Seria 5', 'Seria 1', 'X3', 'X5', 'X1', 'Seria 7'],
+            'Volkswagen': ['Golf', 'Passat', 'Tiguan', 'Polo', 'Touran', 'Caddy', 'T-Roc'],
+            'Audi': ['A4', 'A6', 'A3', 'Q5', 'A5', 'Q3', 'Q7'],
+            'Ford': ['Focus', 'Mondeo', 'Kuga', 'Fiesta', 'S-Max', 'C-MAX', 'Mustang'],
+            'Opel': ['Astra', 'Insignia', 'Corsa', 'Mokka', 'Zafira', 'Meriva', 'Vivaro'],
+            'Mercedes-Benz': ['Klasa C', 'Klasa E', 'Klasa A', 'Klasa S', 'CLA', 'GLC', 'GLE'],
+            'Toyota': ['Corolla', 'Yaris', 'RAV4', 'Auris', 'Avensis', 'C-HR', 'Aygo'],
+            'Skoda': ['Octavia', 'Superb', 'Fabia', 'Kodiaq', 'Kamiq', 'Karoq', 'RAPID'],
+            'Renault': ['Megane', 'Clio', 'Scenic', 'Captur', 'Laguna', 'Kadjar', 'Trafic'],
+            'Peugeot': ['308', '3008', '508', '208', '2008', '5008', '207', 'Partner', '407', '307', '206', 'Rifter'],
+            'Kia': ['Sportage', 'Ceed', 'Rio', 'XCeed', 'Picanto', 'Niro', 'Venga'],
+            'Hyundai': ['I30', 'Tucson', 'ix35', 'i20', 'Kona', 'i40', 'i10', 'ix20', 'Santa Fe', 'Elantra'],
+            'Volvo': ['S60', 'S90', 'V60', 'V90', 'XC40', 'XC60', 'XC90'],
+            'Citroën': ['C3', 'C4', 'C5', 'Berlingo', 'Jumpy', 'SpaceTourer'],
+            'Nissan': ['Qashqai', 'Juke', 'X-Trail', 'Micra', 'Leaf'],
+            'Seat': ['Ibiza', 'Leon', 'Ateca', 'Arona', 'Tarraco'],
+            'Mazda': ['Mazda2', 'Mazda3', 'Mazda6', 'CX-3', 'CX-30', 'CX-5', 'MX-5'],
+            'Fiat': ['500', 'Panda', 'Tipo', '500X', '500L', '124 Spider', 'Ducato'],
+            'Honda': ['Civic', 'Accord', 'CR-V', 'HR-V', 'Jazz'],
+            'Suzuki': ['Swift', 'Vitara', 'S-Cross', 'Ignis'],
+            'Dacia': ['Sandero', 'Logan', 'Duster', 'Lodgy'],
+            'Jeep': ['Renegade', 'Compass', 'Cherokee', 'Grand Cherokee'],
+            'Mitsubishi': ['ASX', 'Eclipse Cross', 'Outlander', 'Pajero'],
+            'Porsche': ['911', 'Cayenne', 'Panamera', 'Macan']
+        };
+
+        function populateCarModels() {
+            // This function is called when the car brand selection changes
+            var carBrand = document.getElementById('carBrand').value;
+            var carModelSelect = document.getElementById('carModel');
+
+            // Clear previous options
+            carModelSelect.innerHTML = '<option value="" disabled selected>Wybierz model pojazdu</option>';
+
+            // Add models based on the selected car brand
+            var models = samochody[carBrand] || [];
+            for (var i = 0; i < models.length; i++) {
+                var option = document.createElement('option');
+                option.value = models[i];
+                option.text = models[i];
+                carModelSelect.add(option);
+            }
+
+            // Enable the car model selection
+            carModelSelect.disabled = false;
+        }
+
+        function submitCarSearch() {
+            // Show the loading bar
+            showLoadingBar();
+
+            // Fetch the CSRF token from the cookie
+            function getCSRFToken() {
+                var csrfToken = null;
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.startsWith('csrftoken=')) {
+                        csrfToken = cookie.substring('csrftoken='.length, cookie.length);
+                        break;
+                    }
+                }
+                return csrfToken;
+            }
+
+            // Include the CSRF token in the headers
+            var csrfToken = getCSRFToken();
+
+            var yearFromInput = document.getElementById('yearFrom');
+            var yearToInput = document.getElementById('yearTo');
+            var distanceInput = document.getElementById('distanceFromTown');
+
+            var yearFrom = parseInt(yearFromInput.value);
+            var yearTo = parseInt(yearToInput.value);
+            var distanceValue = parseInt(distanceInput.value);
+
+            // Check if the year "to" is not less than the year "from"
+            if (yearTo < yearFrom) {
+                alert("Rok produkcji do nie może być mniejszy niż rok produkcji od.");
+                return;
+            }
+
+            // Check if the year values are within the specified range (1900 to 2023)
+            if (yearFrom < 1900 || yearFrom > 2023 || yearTo < 1900 || yearTo > 2023) {
+                alert("Wprowadź rok produkcji z zakresu od 1900 do 2023.");
+                return;
+            }
+
+            // Check if the entered value for distance is a number
+            if (isNaN(distanceValue)) {
+                alert("Wprowadź poprawną liczbę dla odległości.");
+                return;
+            }
+
+            // Check if the value for distance is within the specified range
+            if (distanceValue < 0 || distanceValue > 800) {
+                alert("Wprowadź liczbę z zakresu od 0 do 800 dla odległości.");
+                return;
+
+            }
+
+            var engineCapFromInput = document.getElementById('engineCapFrom');
+            var engineCapToInput = document.getElementById('engineCapTo');
+
+            var engineCapFrom = parseInt(engineCapFromInput.value);
+            var engineCapTo = parseInt(engineCapToInput.value);
+
+            // Check if the engine capacity "to" is not less than the engine capacity "from"
+            if (engineCapTo < engineCapFrom) {
+                alert("Pojemność silnika do nie może być mniejsza niż pojemność silnika od.");
+                return;
+
+            }
+
+            var enginePowerFromInput = document.getElementById('enginePowerFrom');
+            var enginePowerToInput = document.getElementById('enginePowerTo');
+
+            var enginePowerFrom = parseInt(enginePowerFromInput.value);
+            var enginePowerTo = parseInt(enginePowerToInput.value);
+
+            // Check if the engine power "to" is not less than the engine power "from"
+            if (enginePowerTo < enginePowerFrom) {
+                alert("Moc silnika do nie może być mniejsza niż moc silnika od.");
+                return;
+            }
+
+            // Check if the entered values are numbers
+            if (isNaN(enginePowerFrom) || isNaN(enginePowerTo)) {
+                alert("Wprowadź poprawne wartości dla mocy silnika.");
+                return;
+            }
+
+            // Check if the values fit within the specified range
+            if (enginePowerFrom < 0 || enginePowerFrom > 1000 || enginePowerTo < 0 || enginePowerTo > 1000) {
+                alert("Wprowadź liczbę z zakresu od 0 do 1000 dla mocy silnika.");
+                return;
+            }
+
+            var priceFromInput = document.getElementById('priceFrom');
+            var priceToInput = document.getElementById('priceTo');
+
+            var priceFrom = parseInt(priceFromInput.value);
+            var priceTo = parseInt(priceToInput.value);
+
+            // Check if the price "to" is not smaller than the price "from"
+            if (priceTo < priceFrom) {
+                alert("Cena do nie może być mniejsza niż cena od.");
+                return;
+            }
+
+            // Check if the entered values are numbers
+            if (isNaN(priceFrom) || isNaN(priceTo)) {
+                alert("Wprowadź poprawne wartości dla ceny.");
+                return;
+            }
+
+            // Check if the values fit within the specified range
+            if (priceFrom < 0 || priceFrom > 5000000 || priceTo < 0 || priceTo > 5000000) {
+                alert("Wprowadź liczbę z zakresu od 0 do 5000000 dla ceny.");
+                return;
+            }
+
+            var mileageFromInput = document.getElementById('mileageFrom');
+            var mileageToInput = document.getElementById('mileageTo');
+
+            var mileageFrom = parseInt(mileageFromInput.value);
+            var mileageTo = parseInt(mileageToInput.value);
+
+            // Check if the mileage "to" is not smaller than the mileage "from"
+            if (mileageTo < mileageFrom) {
+                alert("Przebieg do nie może być mniejszy niż przebieg od.");
+                return;
+            }
+
+            // Check if the entered values are numbers
+            if (isNaN(mileageFrom) || isNaN(mileageTo)) {
+                alert("Wprowadź poprawne wartości dla przebiegu.");
+                return;
+            }
+
+            // Check if the values are within the specified range
+            if (mileageFrom < 0 || mileageFrom > 1500000 || mileageTo < 0 || mileageTo > 1500000) {
+                alert("Wprowadź liczbę z zakresu od 0 do 1500000 dla przebiegu.");
+                return;
+            }
+
+            // Fetch the selected values and perform your search logic here
+            var brand = document.getElementById('carBrand').value;
+            var model = document.getElementById('carModel').value;
+
+            // Additional fields
+            var yearFrom = document.getElementById('yearFrom').value;
+            var yearTo = document.getElementById('yearTo').value;
+            var engineCapFrom = document.getElementById('engineCapFrom').value;
+            var engineCapTo = document.getElementById('engineCapTo').value;
+            var priceFrom = document.getElementById('priceFrom').value;
+            var priceTo = document.getElementById('priceTo').value;
+            var fuelType = document.getElementById('fuelType').value;
+            var mileageFrom = document.getElementById('mileageFrom').value;
+            var mileageTo = document.getElementById('mileageTo').value;
+            var gearboxType = document.getElementById('gearboxType').value;
+            var enginePowerFrom = document.getElementById('enginePowerFrom').value;
+            var enginePowerTo = document.getElementById('enginePowerTo').value;
+            var town = document.getElementById('town').value;
+            var distanceFromTown = document.getElementById('distanceFromTown').value;
+            var voivodship = document.getElementById('voivodship').value;
+
+            // Validate and process form data as needed
+
+            // Create a data object with the form values
+            var formData = {
+                brand: brand,
+                model: model,
+                yearFrom: yearFrom,
+                yearTo: yearTo,
+                engineCapFrom: engineCapFrom,
+                engineCapTo: engineCapTo,
+                priceFrom: priceFrom,
+                priceTo: priceTo,
+                fuelType: fuelType,
+                mileageFrom: mileageFrom,
+                mileageTo: mileageTo,
+                gearboxType: gearboxType,
+                enginePowerFrom: enginePowerFrom,
+                enginePowerTo: enginePowerTo,
+                town: town,
+                distanceFromTown: distanceFromTown,
+                voivodship: voivodship
+            };
+
+            // Update the endpoint to match your Django views
+            var endpoint = '/home/';
+
+            // Make an AJAX request to your Django backend
+            $.ajax({
+                type: 'POST',
+                url: endpoint,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                    // Add any other headers you may need
+                },
+                data: JSON.stringify(formData),
+                success: function (data) {
+                    // Process the response from the server
+                    //console.log(data);
+
+                    // Update the table with the received data
+                    updateTable(data);
+                    updateMedian_Price(data);
+                    updateMedian_Mileage(data);
+
+                    // Draw the histogram based on the updated data
+                    drawPriceHistogram(data);
+                    drawScatterplot(data);
+
+
+                    // Hide the loading bar and show success message
+                    hideLoadingBar('Poszukiwania zakończone!');
+
+                },
+                error: function (error) {
+                    // Handle AJAX error
+                    //console.error('Error:', error);
+
+                    // Handle error case
+                    hideLoadingBar('Error: Unable to complete the search.');
+                }
+            });
+        }
+
+        function updateTable(data) {
+
+            // Print the data array to the console
+            //console.log('Received data:', data.list_of_ads);
+
+            // Get the table body
+            var tableBody = $('#adsTable tbody');
+
+            // Clear existing rows
+            tableBody.empty();
+
+            // Check if there are any ads to display
+            if (data && data.list_of_ads && data.list_of_ads.length > 0) {
+                // Loop through each ad in the data
+                data.list_of_ads.forEach(function (ad) {
+                    // Create a new row
+                    var row = $('<tr>');
+
+                    function formatCurrency(value) {
+                        return parseFloat(value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$& ').replace('.', ',');
+                    }
+
+                    // Assuming ad.przebieg_value is a number
+                    const formattedMileage = ad.przebieg_value.toLocaleString('pl-PL'); // Use 'pl-PL' for Polish formatting
+
+                    // Assuming ad.pojemnosc_value is a number
+                    const liters = (ad.pojemnosc_value / 1000).toFixed(1); // Convert to liters and fix the decimal places to 1
+
+                    // Add cells with data from the ad
+                    row.append($('<td>').html(`<a href="${ad.url_value}" target="_blank"><img src="${getSiteImage(ad.strona_value)}" alt="Link" style="width: 50px; height: 50px;"></a>`));
+                    // Create a new <td> for the title and additional information
+                    var titleAndInfoCell = $('<td>');
+
+                    // Add the title with a link
+                    titleAndInfoCell.html(`
+                        <a href="${ad.url_value}" target="_blank">${ad.tytul_value}</a>
+                        <div class="additional-info">
+
+                            <img src="https://w7.pngwing.com/pngs/259/827/png-transparent-calendar-day-month-date-year-schedule-business-and-finance-icon.png" alt="Rok produkcji" style="width: 16px; height: 16px;">
+                            <span>${ad.rok_produkcji_value} rok</span>
+
+                            <img src="https://image.similarpng.com/very-thumbnail/2021/01/Location-icon-design-on-transparent-background-PNG.png" alt="Lokalizacja" style="width: 14px; height: 14px;">
+                            <span>${ad.lokalizacja_value}</span>
+
+                            <img src="https://cdn.iconscout.com/icon/premium/png-256-thumb/mileage-3914779-3256309.png" alt="Przebieg" style="width: 14px; height: 14px;">
+                            <span>${formattedMileage} km</span>
+
+                            <img src="https://w7.pngwing.com/pngs/895/122/png-transparent-toyota-86-car-toyota-sequoia-horsepower-toyota.png" alt="Pojemność silnika" style="width: 14px; height: 14px;">
+                            <span>${liters} L</span>
+
+                            <img src="https://icon-library.com/images/engine-icon/engine-icon-13.jpg" alt="Moc silnika" style="width: 14px; height: 14px;">
+                            <span>${ad.moc_value} KM</span>
+
+                        </div>
+                    `);
+
+                    // Append the title and additional information column to the row
+                    row.append(titleAndInfoCell);
+
+                    row.append($('<td>').text(`${formatCurrency(ad.cena_value)} ${ad.waluta_value}`));
+
+
+                    // Append the row to the table body
+                    tableBody.append(row);
+
+                    // Add the "show" class to display the table
+                    $('#adsTable').addClass('show');
+
+                    // Hide the loading bar and show success message
+                    hideLoadingBar('Poszukiwania zakończone!');
+
+                });
+
+            } else {
+                // If no ads, display a message
+                tableBody.append('<tr><td colspan="2">No records found</td></tr>');
+
+                // Hide the loading bar and show success message
+                hideLoadingBar('Brak wyników :( - Odśwież stronę.');
+
+                if (data.list_of_ads.length === 0) {
+                    hideOrShowContainers(data);
+                }
+
+                // Remove the "show" class to hide the table
+                $('#adsTable').removeClass('show');
+            }
+
+        }
+
+        function sortTable() {
+            var table = document.getElementById('adsTable');
+            var rows = Array.from(table.getElementsByTagName('tr'));
+
+            rows.sort(function(a, b) {
+                var aValue = parseFloat(a.cells[2].innerText.replace(/\s/g, '').replace(',', '.'));
+                var bValue = parseFloat(b.cells[2].innerText.replace(/\s/g, '').replace(',', '.'));
+                return aValue - bValue;
+            });
+
+            rows.forEach(function(row) {
+                table.appendChild(row);
+            });
+        }
+
+        function getSiteImage(site) {
+            switch (site) {
+                case 'gratka':
+                    return 'https://s-gr.cdngr.pl/assets/gratka/v0.100.0/dist/images/homepageOgImage.png';
+                case 'otomoto':
+                    return 'https://statics.otomoto.pl/optimus-storage/a/otomotopl/images/fb-image200x200.png';
+                case 'allegro':
+                    return 'https://assets.allegrostatic.com/opbox/allegro.pl/homepage/Main%20Page/6lJEwSSohvBIIWNlJUU9sx-w1200-h1200.png';
+                default:
+                    return 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/White_square_50%25_transparency.svg/1024px-White_square_50%25_transparency.svg.png';
+            }
+        }
+
+        <!-- Added loading bar -->
+        function showLoadingBar() {
+            // Show the loading bar
+            $('#loading-bar').show();
+        }
+
+        function hideLoadingBar(message) {
+            // Hide the loading bar
+            $('#loading-bar').hide();
+
+            // Display a message (Success or Error)
+            var messageContainer = $('#message-container');
+            messageContainer.text(message);
+            messageContainer.show();
+
+            // Clear the message and hide it after 3 seconds
+            setTimeout(function () {
+                messageContainer.hide().text('');
+            }, 3000);
+
+        }
+
+        // CREATING CHARTS
+        function drawPriceHistogram(data) {
+            // Extract price data
+            var prices = data.list_of_ads.map(ad => ad.cena_value);
+
+            // Filter out undefined or null prices
+            var validPrices = prices.filter(price => price !== undefined && price !== null);
+
+            // Check if there are valid prices
+            if (validPrices.length === 0) {
+                console.log('No valid prices to draw histogram.');
+                return;
+            }
+
+            // Determine the maximum and minimum prices
+            var maxPrice = Math.max(...validPrices) * 1.1;
+            var minPrice = Math.min(...validPrices) * 0.9;
+
+            // Determine the range of prices
+            var priceRange = maxPrice - minPrice;
+
+            // Set the number of bins (price ranges)
+            var numBins = 10;
+
+            // Calculate the width of each bin
+            var binWidth = Math.ceil(priceRange / numBins);
+
+            // Initialize an array to store the counts for each price range
+            var priceRangesCount = Array.from({ length: numBins }, () => 0);
+
+            // Determine the price range for each ad and update the counts
+            for (var i = 0; i < validPrices.length; i++) {
+                var priceRangeIndex = Math.floor((validPrices[i] - minPrice) / binWidth);
+                priceRangesCount[priceRangeIndex]++;
+            }
+
+            // Define descriptive labels for each price range
+            var priceRangeLabels = Array.from({ length: numBins }, (_, i) => {
+                var startPrice = (minPrice + i * binWidth).toFixed(0);
+                var endPrice = (minPrice + (i + 1) * binWidth).toFixed(0);
+                return `${startPrice}PLN - ${endPrice}PLN`;
+            });
+
+            //console.log(priceRangeLabels)
+
+            // Create a color gradient for the bars
+            var ctx2 = document.getElementById('histogramPrice').getContext('2d');
+            var gradient = ctx2.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(0, 128, 0, 0.2)'); // Green color
+            gradient.addColorStop(1, 'rgba(0, 128, 0, 1)');
+
+            // Create charts using Chart.js
+            var chart2 = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: priceRangeLabels,
+                    datasets: [{
+                        label: 'Dystrybucja ceny',
+                        data: priceRangesCount,
+                        backgroundColor: gradient,
+                        borderColor: 'rgba(0, 128, 0, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'category',
+                            position: 'bottom',
+                            ticks: {
+                                display: true,
+                                maxRotation: 0,
+                                minRotation: 0,
+                                font: {
+                                    size: 8,
+                                },
+                                callback: function(value, index, x) {
+                                    /* console.log(value);
+                                     console.log(index);
+                                    console.log(x); */
+                                    const y = priceRangeLabels[index]
+                                    const text = y.split('-');
+                                    return [
+                                        text[0],
+                                        `-`,
+                                        text[text.length-1]
+                                    ]
+                                }
+                            },
+                            afterFit: (scale) => scale.height = 45,
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'right',
+                            precision: 0, // Display integer values only
+                            stepSize: 1 // Set the step size to 1
+                        }
+                    },
+                    legend: {
+                        display: true // Hide the legend
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                },
+            });
+        }
+
+        // Function to draw the scatterplot
+        function drawScatterplot(data) {
+            // Extract scatterplot data
+            var scatterplotData = data.list_of_ads.map(ad => ({
+                y: ad.cena_value,
+                x: ad.przebieg_value,
+                title: ad.tytul_value,
+                url: ad.url_value
+            }));
+
+            // Create charts using Chart.js
+            var ctx3 = document.getElementById('scatterplot').getContext('2d');
+            var chart3 = new Chart(ctx3, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Przebieg vs. Cena',
+                        data: scatterplotData,
+                        pointBackgroundColor: 'green', // Set the color of the data points
+                        pointBorderColor: 'transparent' // Set the border color to transparent to hide it
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            ticks: {
+                                callback: function (value, index, values) {
+                                    return formatMileage(value); // Format mileage on the x-axis
+                                }
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            ticks: {
+                                callback: function (value, index, values) {
+                                    return formatPrice(value); // Format price on the y-axis
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (tooltipItem) => tooltipItem[0].dataset.data[tooltipItem[0].dataIndex].title
+                            }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        intersect: false
+                    },
+                    onClick: function (event, elements) {
+                        var activePoints = chart3.getElementsAtEventForMode(event, 'point', chart3.options);
+
+                        if (elements.length > 0) {
+                            var clickedPoint = elements[0];
+                            var adData = scatterplotData[clickedPoint.index];
+
+                            var title = adData.title;
+                            var url = adData.url;
+
+                            // Navigate to the URL
+                            window.open(url, '_blank');
+                        }
+                    }
+                }
+            });
+        }
+
+        function formatMileage(mileage) {
+            // Check if mileage is a number (digit)
+            if (typeof mileage === 'number') {
+                // Convert the numeric value to a string
+                const mileageString = mileage.toString();
+
+                // If mileage is in the millions or more
+                if (mileage >= 1000000) {
+                    // Divide mileage by 1000000 and append 'm'
+                    return (mileage / 1000000).toFixed(0) + 'm';
+                }
+                // If mileage is in the thousands or more
+                else if (mileage >= 1000) {
+                    // Divide mileage by 1000 and append 'k'
+                    return (mileage / 1000).toFixed(0) + 'k' + ' km';
+                }
+
+                // If mileage is less than 1000, return the original value
+                return mileageString;
+            } else {
+                // Return the original value if it's not a number
+                return mileage;
+            }
+        }
+
+        function formatPrice(price) {
+            // Check if price is a number (digit)
+            if (typeof price === 'number') {
+                // Convert the numeric value to a string
+                const priceString = price.toString();
+
+                // If mileage is in the millions or more
+                if (price >= 1000000) {
+                    // Divide price by 1000000 and append 'm'
+                    return (price / 1000000).toFixed(0) + 'm';
+                }
+                // If price is in the thousands or more
+                else if (price >= 1000) {
+                    // Divide price by 1000 and append 'k'
+                    return (price / 1000).toFixed(0) + 'k' + ' PLN';
+                }
+
+                // If price is less than 1000, return the original value
+                return priceString;
+            } else {
+                // Return the original value if it's not a number
+                return price;
+            }
+        }
+
+        function calculateMedian(values) {
+            // Sort the values
+            values.sort((a, b) => a - b);
+
+            // Check if the array is even or odd length
+            const middle = Math.floor(values.length / 2);
+
+            if (values.length % 2 === 0) {
+                // If even, average the two middle values
+                return (values[middle - 1] + values[middle]) / 2;
+            } else {
+                // If odd, return the middle value
+                return values[middle];
+            }
+        }
+
+        function updateMedian_Price(data) {
+            // Assuming you have a calculateMedian function
+            var median = calculateMedian(data.list_of_ads.map(ad => ad.cena_value));
+
+            // Update the content of the #medianContainer div
+            document.getElementById('medianContainer_Price').textContent = 'Mediana ceny: ' + median.toFixed(2) + ' PLN';
+        }
+
+        function updateMedian_Mileage(data) {
+            // Assuming you have a calculateMedian function
+            var median = calculateMedian(data.list_of_ads.map(ad => ad.przebieg_value));
+
+            // Update the content of the #medianContainer div
+            document.getElementById('medianContainer_Mileage').textContent = 'Mediana przebiegu: ' + median.toFixed(2) + ' km';
+        }
+
+        function hideOrShowContainers(data) {
+            var chartsContainer = document.querySelector('.charts');
+            var medianContainers = document.querySelectorAll('#medianContainer_Price, #medianContainer_Mileage');
+
+            if (data.list_of_ads.length === 0) {
+                chartsContainer.style.display = 'none';
+            } else {
+                chartsContainer.style.display = 'flex';
+                drawPriceHistogram(data);
+                drawScatterplot(data);
+            }
+
+            medianContainers.forEach(container => {
+                if (data.list_of_ads.length === 0) {
+                    container.style.display = 'none';
+                } else {
+                container.style.display = 'flex';
+                updateMedian_Price(data);
+                updateMedian_Mileage(data);
+            }
+            });
+        }
+    </script>
+
+</body>
+</html>
