@@ -54,7 +54,7 @@ The structure of the dictionary is designed to capture key details about each ca
 
 ## 🖥️ Frontend:
 
-Basic frontend has been developed to complement the car listings scraper. The frontend is a simple single-page interface, acknowledging the limited experience in frontend development. While not flawless, it serves the purpose of interacting with the underlying scraper.
+Basic frontend has been developed to complement the car listings scraper. Frontend is a simple, single-page interface, due to the lack of experience in frontend development. While not flawless, it serves the purpose of interacting with the underlying scraper.
 
 ### Features:
 * Search Form:
