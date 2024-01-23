@@ -147,3 +147,17 @@ Once the deployment is complete, you will receive a URL for your Cloud Run servi
 Now, your Docker image is deployed to Google Cloud Registry, and your service is running on Cloud Run. Remember to replace placeholders like your-project-id, your-image-name, and your-service-name with your actual project ID, image name, and desired service name. Adjust the version tag (v1) and other configurations as needed for your project.
 
 You can also deploy application locally.
+
+
+## 📦 Continuous Deployment with GitHub Actions
+
+This project leverages GitHub Actions to automate the deployment workflow to Google Cloud Run. The deploy.yml file in the .github/workflows directory defines a workflow that is triggered on each push to the main branch. The workflow utilizes Google Cloud's GitHub Actions to set up the necessary environment, authenticate with Google Cloud, build and publish a Docker image, and deploy the application to Google Cloud Run.
+
+To securely manage sensitive information, such as Google Cloud service account credentials and project details, the workflow relies on GitHub Secrets. These secrets include:
+* `GCP_APPLICATION` - name must use only lowercase alphanumeric characters and dashes, cannot begin or end with a dash, and cannot be longer than 63 characters.,
+* `GCP_CREDENTIALS` - contents of the JSON key file,
+* `GCP_EMAIL` - service account e-mail like: SERVICE_ACCOUNT_USERNAME@PROJECT_ID.iam.gserviceaccount.com,
+* `GCP_PROJECT` - your project id,
+which are used during the deployment process. The workflow ensures the seamless deployment of the application to Google Cloud Run, providing an efficient and automated deployment pipeline.
+
+To customize the deployment settings, modify the workflow file (deploy.yml) and update the corresponding GitHub Secrets with your Google Cloud Project details. This automated deployment pipeline streamlines the process of deploying updates to your application, ensuring a smooth and efficient development workflow.
