@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['allcaradshubapplication-aohfk56z5q-uc.a.run.app', '*']
 
-CSRF_TRUSTED_ORIGINS = ['https://carads-wkpgtdbwmq-lm.a.run.app']
+CSRF_TRUSTED_ORIGINS = ['https:/allcaradshubapplication-aohfk56z5q-uc.a.run.app']
 
 
 # Application definition
