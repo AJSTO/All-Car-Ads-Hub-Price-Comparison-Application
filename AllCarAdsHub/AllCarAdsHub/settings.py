@@ -25,7 +25,7 @@ SECRET_KEY = "SECRET_KEY"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['carads-wkpgtdbwmq-lm.a.run.app', '*']
+ALLOWED_HOSTS = ['https://allcaradshubapplication-aohfk56z5q-uc.a.run.app', '*']
 
 CSRF_TRUSTED_ORIGINS = ['https://carads-wkpgtdbwmq-lm.a.run.app']
 
