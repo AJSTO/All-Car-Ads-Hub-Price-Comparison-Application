@@ -1,7 +1,7 @@
 [![All_Car_Ads_Hub](https://i.postimg.cc/BvFSbYRn/All-Car-Ads-Hub-2.png)](https://carads-wkpgtdbwmq-lm.a.run.app)
 
 
-# 🔗 Link to web app: [All_Car_Ads_Hub](https://allcaradshubapplication-aohfk56z5q-uc.a.run.app) <img src="https://img.shields.io/badge/version-1.0-green" />
+# 🔗 Link to web app: [All_Car_Ads_Hub](https://carads-wkpgtdbwmq-lm.a.run.app) <img src="https://img.shields.io/badge/version-1.0-green" />
 
 ## 👨‍💻 Built with:
 
